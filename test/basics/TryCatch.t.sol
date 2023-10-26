@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.19;
+pragma solidity ^0.8.19;
 
 import "forge-std/Test.sol";
 
@@ -15,8 +15,9 @@ contract TryCatchTest is Test {
     }
 
     function test_RequireError() external {
-        try this.requireError() {}
-        catch Error(string memory reason) {
+        try this.requireError() {
+            revert("No error");
+        } catch Error(string memory reason) {
             assertEq(reason, "error");
         }
     }
@@ -26,8 +27,9 @@ contract TryCatchTest is Test {
     }
 
     function test_RevertString() external {
-        try this.revertString() {}
-        catch Error(string memory reason) {
+        try this.revertString() {
+            revert("No error");
+        } catch Error(string memory reason) {
             assertEq(reason, "error");
         }
     }
@@ -37,8 +39,9 @@ contract TryCatchTest is Test {
     }
 
     function test_AssertError() external {
-        try this.assertError() {}
-        catch Panic(uint256 errorCode) {
+        try this.assertError() {
+            revert("No error");
+        } catch Panic(uint256 errorCode) {
             assertEq(errorCode, 1);
         }
     }
@@ -51,8 +54,9 @@ contract TryCatchTest is Test {
     }
 
     function test_DivZeroError() external {
-        try this.divZeroError() {}
-        catch Panic(uint256 errorCode) {
+        try this.divZeroError() {
+            revert("No error");
+        } catch Panic(uint256 errorCode) {
             assertEq(errorCode, 18);
         }
     }
@@ -67,8 +71,9 @@ contract TryCatchTest is Test {
     }
 
     function test_UncheckedDivZeroError() external {
-        try this.uncheckedDivZeroError() {}
-        catch Panic(uint256 errorCode) {
+        try this.uncheckedDivZeroError() {
+            revert("No error");
+        } catch Panic(uint256 errorCode) {
             assertEq(errorCode, 18);
         }
     }
@@ -82,8 +87,9 @@ contract TryCatchTest is Test {
     }
 
     function test_CustomError() external {
-        try this.customError() {}
-        catch (bytes memory lowlevelData) {
+        try this.customError() {
+            revert("No error");
+        } catch (bytes memory lowlevelData) {
             assertEq(lowlevelData, abi.encodeWithSelector(Exception.MyError.selector, 1, "error", false));
 
             (bytes4 selector, bytes memory data) = this.parseLowlevelData(lowlevelData);
@@ -93,6 +99,18 @@ contract TryCatchTest is Test {
             assertEq(aaa, 1);
             assertEq(bbb, "error");
             assertEq(ccc, false);
+        }
+    }
+
+    function returnOne() external pure returns (uint256) {
+        return 1;
+    }
+
+    function test_Returns() external {
+        try this.returnOne() returns (uint256 num) {
+            assertEq(num, 1);
+        } catch {
+            revert("Error occurred");
         }
     }
 }

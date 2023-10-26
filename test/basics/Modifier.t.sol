@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.19;
+pragma solidity ^0.8.19;
 
 import "forge-std/Test.sol";
 
@@ -20,21 +20,28 @@ contract Modifier {
         _;
     }
 
-    modifier checkValue(uint256 value_) {
+    modifier checkValue(uint256 value_) virtual {
         require(value_ > 0, "The value must be greater than 0");
         _;
     }
 
-    function chageValue(uint256 value_) public onlyOwner checkValue(value_) returns (uint256) {
+    function changeValue(uint256 value_) public onlyOwner checkValue(value_) returns (uint256) {
         _value = value_;
         return value_;
+    }
+}
+
+contract ModifierChild is Modifier {
+    modifier checkValue(uint256 value_) override {
+        require(value_ > 1 ether, "The value must be greater than 1 ether");
+        _;
     }
 }
 
 contract ModifierTest is Test {
     function test_OnlyOwner() external {
         Modifier m = new Modifier();
-        assertEq(m.chageValue(1), 1);
+        assertEq(m.changeValue(1), 1);
     }
 
     function testFuzz_OnlyOwner_RevertIf_SenderIsNotOwner(address sender_) external {
@@ -44,6 +51,14 @@ contract ModifierTest is Test {
 
         vm.prank(sender_);
         vm.expectRevert(abi.encodeWithSelector(Modifier.UnauthorizedAccount.selector, sender_));
-        m.chageValue(1);
+        m.changeValue(1);
+    }
+
+    function test_OverrideModifier() external {
+        Modifier m = new ModifierChild();
+        assertEq(m.changeValue(2 ether), 2 ether);
+
+        vm.expectRevert("The value must be greater than 1 ether");
+        m.changeValue(1 ether);
     }
 }

@@ -1,7 +1,9 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.19;
+pragma solidity ^0.8.22;
 
 import "forge-std/Test.sol";
+
+event OuterEvent();
 
 contract EventTest is Test {
     event MyEvent(uint256 indexed aaa, string indexed bbb, bool ccc, bytes ddd);
@@ -24,5 +26,18 @@ contract EventTest is Test {
         (bool ccc, bytes memory ddd) = abi.decode(entries[0].data, (bool, bytes));
         assertEq(ccc, true);
         assertEq(ddd, "ddd");
+    }
+
+    function test_OuterEvent() external {
+        vm.recordLogs();
+
+        emit OuterEvent();
+
+        Vm.Log[] memory entries = vm.getRecordedLogs();
+
+        assertEq(entries.length, 1);
+
+        assertEq(entries[0].topics.length, 1);
+        assertEq(entries[0].topics[0], OuterEvent.selector);
     }
 }
