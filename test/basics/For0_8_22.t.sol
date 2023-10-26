@@ -8,6 +8,14 @@ contract ForTest is Test {
         for (uint256 i = 0; i < 1000; i++) {}
     }
 
+    function test_ForUint256_prefix() external pure {
+        for (uint256 i = 0; i < 1000; ++i) {}
+    }
+
+    function test_ForUint256_j() external pure {
+        for (uint256 j = 0; j < 1000; j++) {}
+    }
+
     function test_ForUint128() external pure {
         for (uint128 i = 0; i < 1000; i++) {}
     }
@@ -29,13 +37,21 @@ contract ForTest is Test {
     }
 
     function test_ForNoPlusPlus() external pure {
-        for (uint256 i = 0; i < 1000; i = i + 1) {}
+        for (uint256 i = 0; i < 1000; i += 1) {}
     }
 
     function test_ForUnchecked() external pure {
         for (uint256 i = 0; i < 1000;) {
             unchecked {
                 i++;
+            }
+        }
+    }
+
+    function test_ForUnchecked_j() external pure {
+        for (uint256 j = 0; j < 1000;) {
+            unchecked {
+                j++;
             }
         }
     }
